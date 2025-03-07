@@ -1,0 +1,26 @@
+{
+  "packageName": "Oppo Disc Player",
+  "author": "jdc72",
+  "version": "1.0.0",
+  "minimumHEVersion": "2.3.8.119",
+  "dateReleased": "2025-03-07",
+  "releaseNotes": "1.0.0  @  2025-03-01  -  Initial release",
+  "documentationLink": "https://github.com/jdc72/Hubitat/blob/master/oppo_disc_player/README.md",
+  "communityLink": "https://community.hubitat.com/t/project-oppo-disc-player/127010",
+  "category": "Convenience",
+  "tags": [
+	"LAN",
+	"Misc. Devices",
+	"Multimedia",
+  ],
+  "apps": [
+    {
+      "name": "Oppo Disc Player",
+	  "namespace": "jdc72",
+      "location": "https://raw.githubusercontent.com/jdc72/Hubitat/master/oppo_disc_player/src/OppoDiscPlayer.gvy",
+      "required": true,
+	  "oauth": false,
+	  "description": ""
+    }
+  ]
+}
