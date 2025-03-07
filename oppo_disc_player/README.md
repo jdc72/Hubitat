@@ -67,7 +67,7 @@ The driver requires:
 - The "Refresh Track Metadata" command utilizes the current artist, album, and track name values to perform another lookup in MusicBrainz.  If the metadata is incorrect, you can manually set one or more of the values (artist, album, track name) and then utilize this command to incorporate those new values in a MusicBrainz lookup.
 - The "Send Command" command sends any of the supported Oppo commands to the player.  This allows control beyond the driver's specific commands.
 - The state variables indicate the raw track metadata fields returned by the Oppo.
-- Additional visuals can be found in the [`docs/images`](https://github.com/jdc72/Hubitat/tree/main/docs/images) folder within this repository.
+- Additional visuals can be found in the [`docs/images`](https://github.com/jdc72/Hubitat/tree/main/oppo_disc_player/docs/images) folder within this repository.
 
 ## Support
 If you encounter issues or have feature requests, feel free to open an [issue](https://github.com/jdc72/Hubitat/issues) on this repository.
