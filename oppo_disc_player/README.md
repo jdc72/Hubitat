@@ -52,7 +52,7 @@ The driver requires:
 	  This polling controls status updates for elapsed, remaining, and total times of the disc, track, and title.  All Oppo models require polling to obtain this information, regardless of connection.
 
 ## Tested Models and Connections
-- Oppo BDP-103 via Ethernet (no automatic feedback from the player <=> requires polling queries)
+- Oppo BDP-103 via Ethernet (no automatic feedback from the player; i.e. requires polling queries)
 - Oppo BDP-103 via Ethernet-to-Serial module (PUSR USR-TCP232-302)
 - Oppo UDP-203 via Ethernet
 - Oppo UDP-203 via Ethernet-to-Serial module (PUSR USR-TCP232-302)
