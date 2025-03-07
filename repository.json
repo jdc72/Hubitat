@@ -1,0 +1,18 @@
+{
+  "author": "Jeffrey D. Chapman",
+  "gitHubUrl": "https://github.com/jdc72/Hubitat",
+  "packages": [
+    {
+      "id": "ae5928e5-c244-4e2e-8545-b168bb3e2340",
+      "name": "Oppo Disc Player",
+      "category": "Control",
+      "location": "https://raw.githubusercontent.com/jdc72/Hubitat/main/oppo_disc_player/packageManifest.json",
+      "description": "Oppo Disc Player driver"
+      "tags": [
+	    "LAN",
+	    "Misc. Devices",
+	    "Multimedia",
+      ],
+    }
+  ]
+}
