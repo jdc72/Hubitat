@@ -1,18 +1,22 @@
 # Oppo Disc Player - Hubitat Driver
 
-This repository contains a custom driver for integrating an Oppo disc player (BDP or UDP model) with Hubitat. The driver enables remote-like control via LAN connections (either TCP directly or TCP-to-serial) and displays current status information of your Oppo player.
+This repository contains a custom driver for integrating an Oppo disc players with Hubitat. The driver enables remote-like control via LAN connections (either Ethernet or Ethernet-to-serial) and displays current status information of your Oppo player.
+
+## Compatibility
+- Oppo BDP players
+- Oppo UDP players
 
 ## Features
 - Control of the Oppo player (e.g., playback, power, track information).
-- Supports communication over RS232 and Ethernet.
+- Supports communication to the Oppo via its Ethernet and R232 ports.
 - Retrieves and displays status updates (e.g., playback state, disc information).
 - Enhances track information with MusicBrainz queries and manual inputs.
 - Compatibility with Oppo BDP and UDP models.
 
 ## Requirements
-The driver requires:
-- An Oppo BDP/UDP player with RS232 or Ethernet control.
-- (Optional) RS232-to-Ethernet converter if using a serial connection (e.g., PUSR USR-TCP232-302).
+- Oppo BDP or UDP player
+- (for serial connections) Ethernet-to-Serial converter (e.g. PUSR USR-TCP232-302)
+- (for serial connections) DB9 Null Modem Cable
 
 ## Installation
 
@@ -24,7 +28,7 @@ The driver requires:
 - Add a new Virtual Device.
 - Select "Oppo Disc Player".
 
-### Step 3: Configure the RS232-to-Ethernet Converter (Optional)
+### Step 3: Configure the Ethernet-to-Serial Converter (Optional)
 - Follow the converter's instructions for changing its default IP to one in your subnet.
 - Set the baud rate to "9600 bps".
 - Set the data bits to "8 bits".
