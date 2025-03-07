@@ -41,20 +41,15 @@ The driver requires:
 - Select the appropriate connection to the Oppo.
 - Select polling intevals, if desired.
 	- Playback/Disc Polling
-	
-	Only necessary for BDP models connected via Ethernet, this polling controls status updates for playback information (e.g. play, stop), disc type (e.g. CDDA), audio type (e.g. LPCM), and repeat mode (e.g. All).
+	  Only necessary for BDP models connected via Ethernet, this polling controls status updates for playback information (e.g. play, stop), disc type (e.g. CDDA), audio type (e.g. LPCM), and repeat mode (e.g. All).
 	- Power Status (OFF) Polling
-	
-	Only necessary for BDP models connected via Ethernet, this polling controls status updates for the power when the player is currently in standby.
+	  Only necessary for BDP models connected via Ethernet, this polling controls status updates for the power when the player is currently in standby.
 	- Power Status (ON) Polling
-	
-	Only necessary for BDP models connected via Ethernet, this polling controls status updates for the power when the player is currently powered on.
+	  Only necessary for BDP models connected via Ethernet, this polling controls status updates for the power when the player is currently powered on.
 	- Track Polling
-	
-	This polling controls status updates for the track numbers and track metadata (e.g. artist).  All Oppo models require polling to obtain this information, regardless of connection.
+	  This polling controls status updates for the track numbers and track metadata (e.g. artist).  All Oppo models require polling to obtain this information, regardless of connection.
 	- Time Polling
-	
-	This polling controls status updates for elapsed, remaining, and total times of the disc, track, and title.  All Oppo models require polling to obtain this information, regardless of connection.
+	  This polling controls status updates for elapsed, remaining, and total times of the disc, track, and title.  All Oppo models require polling to obtain this information, regardless of connection.
 
 ## Tested Models and Connections
 - Oppo BDP-103 via Ethernet (no automatic feedback from the player)
