@@ -7,12 +7,12 @@
       "name": "Oppo Disc Player",
       "category": "Control",
       "location": "https://raw.githubusercontent.com/jdc72/Hubitat/main/oppo_disc_player/packageManifest.json",
-      "description": "Oppo Disc Player driver"
+      "description": "Oppo Disc Player driver",
       "tags": [
 	    "LAN",
 	    "Misc. Devices",
-	    "Multimedia",
-      ],
+	    "Multimedia"
+      ]
     }
   ]
 }
