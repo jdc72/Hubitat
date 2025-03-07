@@ -5,7 +5,7 @@
   "minimumHEVersion": "2.3.8.119",
   "dateReleased": "2025-03-01",
   "releaseNotes": "1.0.0  @  2025-03-01  -  Initial release",
-  "documentationLink": "https://github.com/jdc72/Hubitat/blob/main/battery_tracker/README.md",
+  "documentationLink": "https://github.com/jdc72/Hubitat/blob/master/battery_tracker/README.md",
   "communityLink": "https://community.hubitat.com/t/project-battery-tracker/127010",
   "category": "Convenience",
   "tags": [
@@ -17,7 +17,7 @@
     {
       "name": "Battery Tracker",
 	  "namespace": "jdc72",
-      "location": "https://raw.githubusercontent.com/jdc72/Hubitat/main/battery_tracker/src/BatteryTracker.gvy",
+      "location": "https://raw.githubusercontent.com/jdc72/Hubitat/master/battery_tracker/src/BatteryTracker.gvy",
       "required": true,
 	  "oauth": false,
 	  "description": ""
