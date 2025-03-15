@@ -1,6 +1,6 @@
 # Oppo Disc Player - Hubitat Driver
 
-This repository contains a custom driver for integrating an Oppo disc players with Hubitat. The driver enables remote-like control via LAN connections (either Ethernet or Ethernet-to-serial) and displays current status information of your Oppo player.
+This repository contains a custom driver for integrating Oppo disc players with Hubitat. The driver enables remote-like control via LAN connections (either Ethernet or Ethernet-to-serial) and displays current status information of your Oppo player.
 
 ## Compatibility
 - Oppo BDP players
@@ -21,7 +21,7 @@ This repository contains a custom driver for integrating an Oppo disc players wi
 ## Installation
 
 ### Step 1: Import the Driver
-- Install the driver via HPM (preferred) or 
+- Install the driver via HPM (preferred: search for "Oppo") or 
 - Install the driver from this repository: [`OppoDiscPlayer.gvy`](https://github.com/jdc72/Hubitat/blob/main/oppo_disc_player/src/OppoDiscPlayer.gvy).
 
 ### Step 2: Add a New Device
@@ -41,7 +41,7 @@ This repository contains a custom driver for integrating an Oppo disc players wi
 - Set the Hearbeat Time to your choice.
 
 ### Step 3: Configure the Device
-- Provide the IP address and port of the Oppo or the Ethernet-to-RS232 module.
+- Provide the IP address and port of the Oppo or the Ethernet-to-Serial module.
 - Select the appropriate connection to the Oppo.
 - Select polling intevals, if desired.
 	- _Playback/Disc Polling_  
@@ -68,7 +68,7 @@ This repository contains a custom driver for integrating an Oppo disc players wi
 - Oppo truncates the track information to 15 characters.  The driver leverages MusicBrainz to retrieve full titles, which works in many cases, but not all.  If necessary, use the manual settings for the artist, album, and track information to assist the MusicBrainz lookups.
 
 ## Notes
-- The "Refresh Track Metadata" command utilizes the current artist, album, and track name values to perform another lookup in MusicBrainz.  If the metadata is incorrect, you can manually set one or more of the values (artist, album, track name) and then utilize this command to incorporate those new values in a MusicBrainz lookup.
+- The "Refresh Track Metadata" command utilizes the current artist, album, and track name attribute values to perform another lookup in MusicBrainz.  If the metadata is incorrect, you can manually set one or more of the values (artist, album, track name) and then utilize this command to incorporate those new values in a MusicBrainz lookup.
 - The "Send Command" command sends any of the supported Oppo commands to the player.  This allows control beyond the driver's specific commands.
 - The state variables indicate the raw track metadata fields returned by the Oppo.
 - Additional visuals can be found in the [`images`](https://github.com/jdc72/Hubitat/tree/main/oppo_disc_player/docs/images) folder within this repository.
