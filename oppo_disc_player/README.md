@@ -22,7 +22,7 @@ This repository contains a custom driver for integrating Oppo disc players with 
 
 ### Step 1: Import the Driver
 - Install the driver via HPM (preferred: search for "Oppo") or 
-- Install the driver from this repository: [`OppoDiscPlayer.gvy`](https://github.com/jdc72/Hubitat/blob/main/oppo_disc_player/src/OppoDiscPlayer.gvy).
+- Install the driver from this repository: [`OppoDiscPlayer.groovy`](https://github.com/jdc72/Hubitat/blob/main/oppo_disc_player/src/OppoDiscPlayer.groovy).
 
 ### Step 2: Add a New Device
 - Add a new Virtual Device.

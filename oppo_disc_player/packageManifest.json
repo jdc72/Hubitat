@@ -1,10 +1,10 @@
 {
   "packageName": "Oppo Disc Player",
   "author": "Jeffrey D. Chapman",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "minimumHEVersion": "2.4.0.151",
   "dateReleased": "2025.03.07",
-  "releaseNotes": "version 1.0.0  @  2025-03-01  -  jdc  -  Initial release",
+  "releaseNotes": "version 1.0.1  @  2025-03-15  -  jdc  -  Improved MusicBrainz lookup",
   "documentationLink": "https://github.com/jdc72/Hubitat/blob/main/oppo_disc_player/README.md",
   "category": "Control",
   "tags": [
@@ -17,7 +17,7 @@
       "id": "e0ea0223-2df9-4f4e-be36-be44b454f980",
       "name": "Oppo Disc Player",
       "namespace": "jdc72",
-      "location": "https://raw.githubusercontent.com/jdc72/Hubitat/main/oppo_disc_player/src/OppoDiscPlayer.gvy",
+      "location": "https://raw.githubusercontent.com/jdc72/Hubitat/main/oppo_disc_player/src/OppoDiscPlayer.groovy",
       "required": true,
 	  "description": "Oppo Disc Player driver"
     }

@@ -16,6 +16,7 @@
  *
  *  Change History
  *    version 1.0.0  @  2025-03-07  - jdc72  -  Initial release
+ *    version 1.0.1  @  2025-03-15  - jdc72  -  Improved MusicBrainz lookup
  *
  */
 
@@ -26,10 +27,10 @@ import hubitat.device.HubAction
 import hubitat.device.Protocol
 
 @Field static final String DRIVER_NAME = "Oppo Disc Player"
-@Field static final String DRIVER_VERSION = "1.0.0"
+@Field static final String DRIVER_VERSION = "1.0.1"
 @Field static final String LINK_COMM = "https://github.com/jdc72/Hubitat/tree/main/oppo_disc_player"
 @Field static final String LINK_GITHUB = "https://github.com/jdc72/Hubitat/tree/main/oppo_disc_player"
-@Field static final String IMPORT_URL = "https://raw.githubusercontent.com/jdc72/Hubitat/main/oppo_disc_player/src/OppoDiscPlayer.gvy"
+@Field static final String IMPORT_URL = "https://raw.githubusercontent.com/jdc72/Hubitat/main/oppo_disc_player/src/OppoDiscPlayer.groovy"
 
 metadata {
 	definition(name: DRIVER_NAME, namespace: "jdc72", author: "Jeff Chapman (@jdc72)", importUrl: IMPORT_URL) {
@@ -709,7 +710,7 @@ static boolean isTrackDataComparable(String dataRaw, String dataOnline) {
 static String getTrackDataCompare(String data) {
 	if (data == null) return null
 	String dataCompare = getTrackDataSearch(data)
-	Map<String,String> termsToRemove = ["The":"", ",":" ", "'":"", "-":" ", "*":"", "+":" "]
+	Map<String,String> termsToRemove = ["The": "", ",": " ", "'": "", "’": "", "-": " ", "*": "", "+": " "]
 	termsToRemove.each { termToRemove ->
 		dataCompare = dataCompare.replace(termToRemove.key, termToRemove.value)
 	}
