@@ -37,6 +37,7 @@ This repository contains a custom app to simplify labeling devices linked across
 
 ## Notes
 - Additional visuals can be found in the [`images`](https://github.com/jdc72/Hubitat/tree/main/linked_device_labeler/docs/images) folder within this repository.
+- The Hubitat Community topic can be found ['here'](https://community.hubitat.com/t/release-linked-device-labeler/151494).
 
 ## Support
 If you encounter issues or have feature requests, feel free to open an [issue](https://github.com/jdc72/Hubitat/issues) on this repository.
