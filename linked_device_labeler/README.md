@@ -1,6 +1,6 @@
 # Linked Device Labeler - Hubitat App
 
-This repository contains a custom app to simplify labeling devices linked across Hubitat hubs.
+This repository contains a custom app to simplify labeling devices linked across Hubitat hubs via Hub Mesh.
 
 ## Features
 - Bulk updates to the Device Label values of devices to match their labels on the remote hub (i.e. removing " on Hub").
