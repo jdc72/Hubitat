@@ -4,8 +4,8 @@ This repository contains a custom app to simplify labeling devices linked across
 
 ## Features
 - Bulk updates to the Device Label values of devices to match their labels on the remote hub (i.e. removing " on Hub").
-- Optional appending of strings (e.g. icons, characters) to all device label updates.
-- Precise selection of linked devices on which to edit Device Label values.
+- Optional appending of strings (e.g. icons, characters) to Device Label values.
+- Precise selection of linked devices on which to submit Device Label updates.
 - Visibility (with counts) into all linked devices on the hub (requires "Toggle All" selection of all devices).
 
 ## Installation
@@ -17,11 +17,11 @@ This repository contains a custom app to simplify labeling devices linked across
 
 ### Step 2: Select Devices
 - Select linked (and local) devices.
-- The app automatically filters out local devices, so no harm in selecting them as well.
-- All changes to Device Label occur only on devices linked from remote hubs.
+- The app automatically filters out local devices, so no harm in selecting them as well ("Toggle All" is your friend).
+- All changes to Device Label values occur only on devices linked from remote hubs.
 
 ### Step 3: Configure Controls
-- Optionally restrict the display/action to linked devices without Device Label values (i.e. newly linked devices).
+- Optionally restrict the display/action to linked devices currently without Device Label values (i.e. newly linked devices).
 - Optionally restrict the display/action to linked devices whose Device Label values would change.
 - Optionally enter string (e.g. icons, characters) to append to all Device Label values.
 
