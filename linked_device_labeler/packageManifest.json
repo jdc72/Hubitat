@@ -3,22 +3,22 @@
   "author": "Jeffrey D. Chapman",
   "version": "1.0.0",
   "minimumHEVersion": "2.4.0.151",
-  "dateReleased": "2025.03.23",
-  "releaseNotes": "version 1.0.0  @  2025-03-23  -  jdc  -  Initial release",
+  "dateReleased": "2025-03-16",
+  "releaseNotes": "version 1.0.0  @  2025-03-16  -  jdc72  -  Initial release",
   "documentationLink": "https://github.com/jdc72/Hubitat/blob/main/linked_device_labeler/README.md",
-  "category": "Control",
+  "category": "Utility",
   "tags": [
-	"LAN",
-	"Misc. Devices",
-	"Multimedia"
+    "Misc. Devices",
+	"Tools & Utilities"
   ],
-  "drivers": [
+  "apps": [
     {
-      "id": "e0ea0223-2df9-4f4e-be36-be44b454f980",
+      "id": "60896b88-da3c-464e-a996-ac09007129bc",
       "name": "Linked Device Labeler",
       "namespace": "jdc72",
       "location": "https://raw.githubusercontent.com/jdc72/Hubitat/main/linked_device_labeler/src/LinkedDeviceLabeler.groovy",
       "required": true,
+      "oauth": false,
 	  "description": "Convenient labeling of linked devices (to avoid the 'on Hub' display names)"
     }
   ]
