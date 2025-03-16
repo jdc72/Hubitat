@@ -9,9 +9,20 @@
       "location": "https://raw.githubusercontent.com/jdc72/Hubitat/main/oppo_disc_player/packageManifest.json",
       "description": "Oppo Disc Player driver",
       "tags": [
-	    "LAN",
-	    "Misc. Devices",
-	    "Multimedia"
+        "LAN",
+        "Misc. Devices",
+        "Multimedia"
+      ]
+    },
+    {
+      "id": "d89bb74f-a40d-4c16-9712-369d26e86f82",
+      "name": "Linked Device Labeler",
+      "category": "Utility",
+      "location": "https://raw.githubusercontent.com/jdc72/Hubitat/main/linked_device_labeler/packageManifest.json",
+      "description": "Convenient labeling of linked devices (to avoid the 'on Hub' display names)",
+      "tags": [
+        "Misc. Devices",
+        "Tools & Utilities"
       ]
     }
   ]
