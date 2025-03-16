@@ -11,7 +11,7 @@ This repository contains a custom app to simplify labeling devices linked across
 ## Installation
 
 ### Step 1: Import and Add the App
-- Install the application via HPM (search for "Linked" or "Labeler") 
+- Install the application via HPM (search for "Linked" or "Labeler", requires "Fast Search") 
 - Install the application from this repository via the Apps Code page: [`LinkedDeviceLabeler.groovy`](https://raw.githubusercontent.com/jdc72/Hubitat/main/linked_device_labeler/src/LinkedDeviceLabeler.groovy).
 - Add the application via "Add user app" on the Apps page.
 
