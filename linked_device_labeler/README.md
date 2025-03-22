@@ -4,6 +4,7 @@ This repository contains a custom app to simplify labeling devices linked across
 
 ## Features
 - Bulk updates to the Device Label values of devices to match their labels on the remote hub (i.e. removing " on Hub").
+- Manual edits to the Device Label values of devices (i.e. overriding the labels derived from the names on the remote hub).
 - Optional appending of strings (e.g. icons, characters) to Device Label values.
 - Precise selection of linked devices on which to submit Device Label updates.
 - Visibility (with counts) into all linked devices on the hub (requires "Toggle All" selection of all devices).
@@ -33,9 +34,9 @@ This repository contains a custom app to simplify labeling devices linked across
 
 ## Limitations
 - The app requires users to re-select devices after adding newly linked devices.  HE apps cannot access devices without user selections.
-- The app does not allow per-device text entry for the labels.
 
 ## Notes
+- Devices are sorted by (1) devices selected for label changes, (2) devices selectable for label changes, (3) devices whose label values would not change.
 - Additional visuals can be found in the [`images`](https://github.com/jdc72/Hubitat/tree/main/linked_device_labeler/docs/images) folder within this repository.
 - The Hubitat Community topic can be found [here](https://community.hubitat.com/t/release-linked-device-labeler/151494).
 

@@ -16,6 +16,7 @@
  *
  *  Change History
  *    version 1.0.0  @  2025-03-16  -  jdc72  -  Initial release
+ *    version 1.1.0  @  2025-03-22  -  jdc72  -  Manual edits of device labels; optional device de-selection at initialization
  *
  */
 
@@ -24,8 +25,8 @@ import groovy.transform.Field
 import com.hubitat.app.*
 
 @Field static final String APP_NAME = "Linked Device Labeler"
-@Field static final String APP_VERSION = "1.0.0"
-@Field static final String LINK_COMM = "https://github.com/jdc72/Hubitat/tree/main/linked_device_labeler"
+@Field static final String APP_VERSION = "1.1.0"
+@Field static final String LINK_COMM = "https://community.hubitat.com/t/release-linked-device-labeler/151494"
 @Field static final String LINK_GITHUB = "https://github.com/jdc72/Hubitat/tree/main/linked_device_labeler"
 
 
@@ -59,82 +60,113 @@ preferences {
 //-------------------------------------------------------------------------
 
 def pageMain() {
-	dynamicPage(name: "pageMain", title: "", install: true, uninstall: true) {
-		section(titleApp()) {
-			String labelSuffix = (String)settings.labelSuffix
-			DeviceWrapperList allDevicesWrappers = getSettingsDeviceWrapperList("devices_all")
-			Map<String,DeviceWrapper> linkedDevicesWrappers = [:]
-			Map<String,Map<String,String>> linkedDevicesExclude = [:]
-			Map<String,Map<String,String>> linkedDevicesInclude = [:]
-			Map<String,Map<String,String>> linkedDevicesSame = [:]
-			Map<String,Map<String,String>> linkedDevicesAll = [:]
-			Map<String,Map<String,String>> linkedDevicesNow = (Map<String,Map<String,String>>)state.linkedDevices ?: [:]
-			allDevicesWrappers?.findAll { it.controllerType == "LNK" }?.each {
-				Map<String,String> dvcInfo = [id: it.id, name: it.name, labelNow: it.label]
-				dvcInfo["labelNew"] = getLabelNew(dvcInfo, labelSuffix)
-				dvcInfo["labelSame"] = (dvcInfo["labelNew"] == dvcInfo["labelNow"]) ? "Y" : "N"
-				dvcInfo["include"] = dvcInfo["labelSame"] == "Y" ? "N" : linkedDevicesNow."${it.id}"?."include" ?: "Y"
-				if ((dvcInfo["labelNow"] == null || !((Boolean)settings.onlyLabelsNull ?: false)) &&
-					(dvcInfo["labelSame"] == "N" || !((Boolean)settings.onlyLabelsChanging ?: false))) {
-					if (dvcInfo["labelSame"] == "Y")
-						linkedDevicesSame[it.id] = dvcInfo
-					else if (dvcInfo["include"] == "N")
-						linkedDevicesExclude[it.id] = dvcInfo
-					else
-						linkedDevicesInclude[it.id] = dvcInfo
-				}
-				linkedDevicesAll[it.id] = dvcInfo
-				linkedDevicesWrappers[it.id] = it
-			}
-			Map<String,Map<String,String>> linkedDevices = linkedDevicesInclude + linkedDevicesExclude + linkedDevicesSame
-			state.linkedDevices = linkedDevices
+	Map<String,Map<String,String>> linkedDevicesNow = (Map<String,Map<String,String>>)state.linkedDevices ?: [:]
+	String deviceIdEdit = (String)state.deviceIdEdit
+	boolean isMain = (deviceIdEdit == null || linkedDevicesNow[deviceIdEdit] == null)
 
-			paragraph formatHeader(1, "Settings")
-			href(
-				name: "pageSettingsManage",
-				page: "pageSettings",
-				title: "Settings",
-				description: "Manage app name and logging"
-			)
-			paragraph formatHeader(1, "Devices")
-			href(
-				name: "pageDeviceSelectionManage",
-				page: "pageDeviceSelection",
-				title: "Devices",
-				description: getDevicesDescription(linkedDevicesAll, allDevicesWrappers?.size() ?: 0)
-			)
-			paragraph fpx(14, "Note: after linking new devices in Settings > Hub Mesh, you must select those devices here as well", "grey")
-			paragraph formatHeader(1, "Labels")
-			String desc = "For devices linked from other hubs\n" + lpx(8)
-			desc += bullet(3) + "Create a new Device Label from the Device Name (imported from the remote hub)\n"
-			desc += bullet(3) + "Strip \"on [hub]\" from the end\n"
-			desc += bullet(3) + "Optionally append a string (e.g. icon, characters)\n"
-			desc += bullet(3) + "Only devices whose Device Label values could change are selectable\n"
-			paragraph desc
-			if (linkedDevicesAll.size() > 0) {
-				paragraph formatHeader(2, "Controls")
-				inputBoolean("onlyLabelsNull", "Include only devices currently without labels.", [EOL: true])
-				if ((Boolean)settings.onlyLabelsNull ?: false)
-					app.updateSetting("onlyLabelsChanging", [type: "bool", value: true])
-				else
-					inputBoolean("onlyLabelsChanging", "Include only devices whose labels would change.", [EOL: true])
-				inputText("labelSuffix", "Enter a string to append to each label (optional). Please hit \"Enter\" afterwards.", [EOL: true])
-				if (linkedDevicesInclude.size() + linkedDevicesExclude.size() > 0) {
-					state.deviceIdsExcluded = (List<String>)linkedDevicesExclude.collect { it.key }
-					state.deviceIdsIncluded = (List<String>)linkedDevicesInclude.collect { it.key }
-					paragraph "Apply the proposed labels to all devices selected below."
-					inputButton("btnApplyLabels", "Apply Device Labels", [EOL:true])
-					paragraph formatHeader(2, "Values")
-					sectionDeviceValues(linkedDevicesInclude, linkedDevicesExclude, linkedDevicesSame)
-				} else {
-					paragraph formatHeader(2, "Values")
-					paragraph "No label suggestions for the selected devices and controls."
-				}
-			} else {
-				paragraph fpx(16, "Please select devices above.", "firebrick")
-			}
+	dynamicPage(name: "pageMain", title: "", install: isMain, uninstall: true) {
+		section(titleApp()) {
+			if (isMain)
+				sectionMain(linkedDevicesNow)
+			else
+				sectionDeviceLabelEdit(linkedDevicesNow)
 			sectionFooter()
 		}
+	}
+}
+
+
+//-------------------------------------------------------------------------
+// Section:  Main
+//-------------------------------------------------------------------------
+
+def sectionMain(Map<String,Map<String,String>> linkedDevicesNow) {
+	String labelSuffix = (String)settings.labelSuffix
+	DeviceWrapperList allDevicesWrappers = getSettingsDeviceWrapperList("devices_all")
+	Map<String,String> labelsManualNow = (Map<String,String>)state.labelsManual ?: [:]
+	Map<String,String> labelsManualNew = [:]
+	Map<String,DeviceWrapper> linkedDevicesWrappers = [:]
+	Map<String,Map<String,String>> linkedDevicesExclude = [:]
+	Map<String,Map<String,String>> linkedDevicesInclude = [:]
+	Map<String,Map<String,String>> linkedDevicesSame = [:]
+	Map<String,Map<String,String>> linkedDevicesAll = [:]
+	allDevicesWrappers?.findAll { it.controllerType == "LNK" }?.each {
+		Map<String,String> dvcInfo = [id: it.id, name: it.name, labelNow: it.label]
+		String labelDerive = getLabelNew(dvcInfo, labelSuffix)
+		String labelManual = (linkedDevicesNow[it.id]?.labelManual == "Y") ?
+			linkedDevicesNow[it.id].labelNew : labelsManualNow[it.id]
+		if (labelManual == dvcInfo["labelNow"]) labelManual = null
+		dvcInfo["labelNew"] = labelManual ?: labelDerive
+		dvcInfo["labelSame"] = (dvcInfo["labelNew"] == dvcInfo["labelNow"]) ? "Y" : "N"
+		dvcInfo["labelManual"] = (dvcInfo["labelNew"] == labelDerive) ? "N" : "Y"
+		dvcInfo["include"] = (dvcInfo["labelSame"] == "Y") ? "N" : linkedDevicesNow?."${it.id}"?."include" ?: "Y"
+		if ((dvcInfo["labelNow"] == null || !((Boolean)settings.onlyLabelsNull ?: false)) &&
+			(dvcInfo["labelSame"] == "N" || !((Boolean)settings.onlyLabelsChanging ?: false))) {
+			if (dvcInfo["labelSame"] == "Y")
+				linkedDevicesSame[it.id] = dvcInfo
+			else if (dvcInfo["include"] == "N")
+				linkedDevicesExclude[it.id] = dvcInfo
+			else
+				linkedDevicesInclude[it.id] = dvcInfo
+		}
+		if (dvcInfo["labelSame"] == "N" && dvcInfo["labelNew"] != labelDerive) {
+			labelsManualNew[it.id] = dvcInfo["labelNew"]
+		}
+		linkedDevicesAll[it.id] = dvcInfo
+		linkedDevicesWrappers[it.id] = it
+	}
+	Map<String,Map<String,String>> linkedDevices = linkedDevicesInclude + linkedDevicesExclude + linkedDevicesSame
+	if (!linkedDevices.isEmpty())
+		state.linkedDevices = linkedDevices
+	else state.remove("linkedDevices")
+
+	if (!labelsManualNew.isEmpty())
+		state.labelsManual = labelsManualNew
+	else state.remove("labelsManual")
+
+	paragraph formatHeader(1, "Settings")
+	href(
+		name: "pageSettingsManage",
+		page: "pageSettings",
+		title: "Settings",
+		description: "Manage app name and logging"
+	)
+	paragraph formatHeader(1, "Devices")
+	href(
+		name: "pageDeviceSelectionManage",
+		page: "pageDeviceSelection",
+		title: "Devices",
+		description: getDevicesDescription(linkedDevicesAll, allDevicesWrappers?.size() ?: 0)
+	)
+	paragraph fpx(14, "Note: after linking new devices in Settings > Hub Mesh, you must select those devices here as well", "grey")
+	paragraph formatHeader(1, "Labels")
+	String desc = "For devices linked from other hubs\n" + lpx(8)
+	desc += bullet(3) + "Create a new Device Label from the Device Name (imported from the remote hub)\n"
+	desc += bullet(3) + "Strip \"on [hub]\" from the end\n"
+	desc += bullet(3) + "Optionally append a string (e.g. icon, characters)\n"
+	desc += bullet(3) + "Only devices whose Device Label values could change are selectable\n"
+	paragraph desc
+	if (linkedDevicesAll.size() > 0) {
+		paragraph formatHeader(2, "Controls")
+		inputBoolean("onlyLabelsNull", "Include only devices currently without labels.", [EOL: true])
+		if ((Boolean)settings.onlyLabelsNull ?: false)
+			app.updateSetting("onlyLabelsChanging", [type: "bool", value: true])
+		else
+			inputBoolean("onlyLabelsChanging", "Include only devices whose labels would change.", [EOL: true])
+		inputText("labelSuffix", "Enter a string to append to each label (optional) and press \"Enter\"", [EOL: true])
+		if (linkedDevicesInclude.size() + linkedDevicesExclude.size() > 0) {
+			state.deviceIdsExcluded = (List<String>)linkedDevicesExclude.collect { it.key }
+			state.deviceIdsIncluded = (List<String>)linkedDevicesInclude.collect { it.key }
+			paragraph "Apply the proposed labels to all devices selected below."
+			inputButton("btnApply", "Apply Device Labels", [EOL: true])
+			paragraph formatHeader(2, "Values")
+			sectionDeviceValues(linkedDevicesInclude, linkedDevicesExclude, linkedDevicesSame)
+		} else {
+			paragraph formatHeader(2, "Values")
+			paragraph "No label suggestions for the selected devices and controls."
+		}
+	} else {
+		paragraph fpx(16, "Please select devices above.", "firebrick")
 	}
 }
 
@@ -180,8 +212,8 @@ def sectionDeviceValues(Map<String,Map<String,String>> linkedDevicesInclude,
 }
 def sectionHeaderRow(boolean areAllIncluded) {
 	String checkboxButtonName = "btnInclude|ALL|" + (areAllIncluded ? "exclude" : "include")
-	String checkboxHover = fpx(14, "Click to <strong>" + (areAllIncluded ? "exclude" : "include") + "</strong> all eligible devices " + (areAllIncluded ? "from" : "in") + " label changes (i.e. whose values could change)", "black")
-	String checkboxValue = getTooltip("1", inputButtonCheckbox(checkboxButtonName, areAllIncluded, "white"), checkboxHover)
+	String checkboxHover = fpx(14, "Click to <strong>" + (areAllIncluded ? "exclude" : "include") + "</strong> all eligible devices " + (areAllIncluded ? "from" : "in") + " label changes (i.e. whose values could change)", COLOR_TEXT)
+	String checkboxValue = getTooltip("1", inputButtonCheckbox(checkboxButtonName, areAllIncluded, [color:"white"]), checkboxHover)
 	sectionHeaderColumn(checkboxValue, [align: "center", width: 1])
 	sectionHeaderColumn("Device ID", [align: "center", width: 1])
 	sectionHeaderColumn("Device Label")
@@ -190,19 +222,22 @@ def sectionHeaderRow(boolean areAllIncluded) {
 }
 def sectionHeaderColumn(String name, Map params = null) {
 	String columnHdrFmt = indent(gap() + fpx(12, name), 10, (String)params?.align ?: "left")
-	paragraph formatHeader(3, columnHdrFmt, false), width: (Integer)params?.width ?: 3
+	paragraph formatHeader(3, columnHdrFmt, [padding: false]), width: (Integer)params?.width ?: 3
 }
 def sectionDeviceRow(Map<String,String> device) {
 	boolean isSame = (device["labelSame"] == "Y")
 	boolean isIncluded = (device["include"] == "Y")
 	String color = isIncluded ? null : COLOR_IGNORED
 	String checkboxButtonName = "btnInclude|${device.id}|" + (isIncluded ? "exclude" : "include")
-	String checkboxHover = fpx(14, "Click to <strong>" + (isIncluded ? "exclude" : "include") + "</strong> this device " + (isIncluded ? "from" : "in") + " label changes", "black")
+	String checkboxHover = fpx(14, "Click to <strong>" + (isIncluded ? "exclude" : "include") + "</strong> this device " + (isIncluded ? "from" : "in") + " label changes", COLOR_TEXT)
 	String checkboxValue = (isSame) ? "" : getTooltip("1", inputButtonCheckbox(checkboxButtonName, isIncluded), checkboxHover)
 	sectionDeviceColumn(checkboxValue, [color: color, align: "center", width: 1])
-	sectionDeviceColumn(hrefLinkDevicePage(device["id"], device["id"], [color: color]), [color: color, align: "center", width: 1])
+	String deviceId = hrefLinkDevicePage(device["id"], device["id"], [small: true, color: color])
+	sectionDeviceColumn(deviceId, [color: color, align: "center", width: 1])
 	sectionDeviceColumn(device["labelNow"], [color: color])
-	sectionDeviceColumn(device["labelNew"], [color: color, bold: isSame ? null : "N"])
+	String labelNewText = device["labelNew"] + "  " + getIcon(ICON_PENCIL, [small: true])
+	String labelNew = inputButtonLink("btnEdit|" + device["id"], labelNewText, [color:color])
+	sectionDeviceColumn(labelNew, [color: color, bold: isSame ? null : "N"])
 	sectionDeviceColumn(device["name"], [color: color, width: 4])
 }
 def sectionDeviceColumn(String value, Map params = null) {
@@ -225,6 +260,58 @@ static List<Map<String,String>> getDevicesSorted(Map<String,Map<String,String>> 
 
 
 //-------------------------------------------------------------------------
+// Section:  Label Edit
+//-------------------------------------------------------------------------
+
+def sectionDeviceLabelEdit(Map<String,Map<String,String>> linkedDevicesNow) {
+	String deviceId = (String)state.deviceIdEdit
+	Map<String,String> device = linkedDevicesNow[deviceId]
+	String labelNew = device["labelNew"]
+	String labelEdit = (String)settings.labelEdit ?: labelNew
+	boolean isSpaceStart = (labelEdit =~ /^\s/)
+	boolean isSpaceEnd = (labelEdit =~ /\s$/)
+	boolean isSame = (labelEdit == labelNew)
+
+	paragraph formatHeader(1, "Device Label")
+	paragraph formatHeader(3, device["name"])
+	String desc = "Manually edit the proposed Device Label\n" + lpx(8) +
+		bullet(3) + "Override the currently proposed Device Label derived from the Device Name\n" +
+		bullet(3) + "Return to the main page to apply the proposed Device Label to the device\n"
+	paragraph desc
+	paragraph formatHeader(2, "Value")
+	inputText("labelEdit", "Enter the desired value for the proposed Device Label", [defaultValue: labelNew, EOL: true])
+	String msg = fpx(14, "Please press \"Enter\" after changing the value above\n", "grey")
+	if (isSpaceStart) msg += fpx(14, "Potential typo:  the new value starts with a space\n", "firebrick")
+	if (isSpaceEnd) msg += fpx(14, "Potential typo:  the new value ends with a space\n", "firebrick")
+	paragraph msg
+
+	paragraph formatHeader(2, "Action")
+	if (!isSame) sectionHeaderColumn("Version", [align: "center", width: 1])
+	sectionHeaderColumn("Device ID", [align: "center", width: 1])
+	sectionHeaderColumn("Device Label  //  Current")
+	sectionHeaderColumn("Device Label  //  Proposed")
+	sectionHeaderColumn("Device Name", [width: isSame ? 5 : 4])
+	sectionDeviceInfo(device, isSame ? null : "Before", device["labelNew"])
+	if (!isSame) sectionDeviceInfo(device, "After", labelEdit)
+	paragraph getFormat("line-grey")
+	inputButton("btnReturn", isSame ? "Return" : "Cancel", [width: 1])
+	paragraph lpx(8) + (isSame ? "Return to the main page" :
+		"Keep the originally proposed Device Label (\"Before\") and return to the main page"), width: 11
+	if (!isSame) {
+		inputButton("btnUpdate", "Update", [width: 1])
+		paragraph lpx(8) + "Update the proposed label (\"After\") and return to the main page", width: 11
+	}
+}
+def sectionDeviceInfo(Map<String,String> device, String version, String labelNew) {
+	if (version != null) sectionDeviceColumn(version, [align: "center", width: 1])
+	sectionDeviceColumn(hrefLinkDevicePage(device["id"], device["id"], [small: true]), [align: "center", width: 1])
+	sectionDeviceColumn(device["labelNow"])
+	sectionDeviceColumn(labelNew)
+	sectionDeviceColumn(device["name"], [width: (version == null) ? 5 : 4])
+}
+
+
+//-------------------------------------------------------------------------
 // Page:  Settings
 //-------------------------------------------------------------------------
 
@@ -234,6 +321,8 @@ def pageSettings() {
 			paragraph formatHeader(2, "Application Label")
 			inputText("linkedDeviceLabelerLabel", "Application label for the Linked Device Labeler",
 				[defaultValue: getAppLabel(), required: true])
+			paragraph formatHeader(2, "Initialization")
+			inputBoolean("initializeDeselectDevices", "Deselect devices during app initialization (i.e. \"Done\")")
 			paragraph formatHeader(2, "Logging")
 			inputBoolean("loggingDebug", "Enable debug logging")
 			if (settings.loggingDebug == true)
@@ -278,37 +367,47 @@ def pageDeviceSelection() {
 
 @CompileStatic
 static String formatTitle(String text1, String text2 = null) {
-	return "<div style='display:inline-block; width:100%; border-radius:0; color:#1A77C9; background-color:#FFFFFFFF; padding:15px 15px; margin:5px 0 0 0; box-shadow:0px 0px 5px 1px #1A77C9;'>${fpx(22, text1)}${text2 == null ? "" : fpx(16, "\n$text2", "#49535c")}</div>"
+	return "<div style='display:inline-block; width:100%; border-radius:0; color:$COLOR_BLUE; background-color:#FFFFFFFF; padding:15px 15px; margin:5px 0 0 0; box-shadow:0px 0px 5px 1px $COLOR_BLUE;'>${fpx(22, text1)}${text2 == null ? "" : fpx(16, "\n$text2", "#49535c")}</div>"
 }
 @CompileStatic
-static String formatHeader(Integer headerNum, String text, boolean addPadding = true) {
-	String color1 = HEADER_COLORS[headerNum].color1
-	String color2 = HEADER_COLORS[headerNum].color2
+static String formatHeader(Integer headerNum, String text, Map params = null) {
+	String color1 = getHeaderColor(headerNum,1)
+	String color2 = getHeaderColor(headerNum,2)
 	String background = " background:linear-gradient(0deg, $color1 0%, $color2 40%, $color2 60%, $color1 100%);"
 	String boxShadow = (headerNum in [1,2]) ? "box-shadow:0px 0px 3px 1px rgba(0,0,0,0.3);" : ""
 	String margin = (headerNum in [1,2]) ? "margin:5px 0 0 0;" : ""
-	String padding = (addPadding) ? "padding:${HEADER_PADDING[headerNum]};" : ""
+	boolean isPadding = (params?.padding == null ? true : (Boolean)params.padding)
+	String padding = (isPadding) ? "padding:${HEADER_PADDING[headerNum]};" : ""
 	String txt = (headerNum == 1) ? fpx(18, text) : text
 	return "<div style='color:#FFFFFFFF; $background $padding $margin $boxShadow'>${txt}</div>"
 }
-@Field public static final Map<Integer,Map<String,String>> HEADER_COLORS = [
-		1: [color1:"#20599E", color2:"#1A77C9"],
-		2: [color1:"#197A41", color2:"#32994D"],
-		3: [color1:"#616161", color2:"grey"],
-		4: [color1:"#878787", color2:"#99A3A4"],
-	]
+@CompileStatic
+static String getHeaderColor(Integer headerNum, Integer colorNum) {
+	return [
+		1: (Map<Integer,String>)[1:"#20599E", 2:COLOR_BLUE],
+		2: (Map<Integer,String>)[1:"#197A41", 2:"#32994D"],
+		3: (Map<Integer,String>)[1:"#616161", 2:"grey"],
+		4: (Map<Integer,String>)[1:"#878787", 2:"#99A3A4"],
+	][headerNum][colorNum]
+}
 @Field public static final Map<Integer,String> HEADER_PADDING = [1:"7px 15px", 2:"7px 15px", 3:"4px 15px", 4:"4px 15px"]
 
 @CompileStatic
-static String getFormat(String type, String text = "", String formatValue = "black") { // Modified from @Stephack Code / @BPTWorld
-	if (type == "bold-red") return "<div style='color:firebrick;font-weight: bold'>${text}</div>"
-	if (type == "font") return "<span style='font-family:${formatValue}'>${text}</span>"
-	if (type == "highlight") return "<div style='color:#ffffff;background-color:${formatValue}'>${text}</div>"
-	if (type == "line") return "<div style='width:100%; height:1px; border-bottom:1px solid #1A77C9;'></div>"
-	if (type == "line2") return "<hr style='background-color:#1A77C9; height: 1px; border: 0;'></hr>"
+static String getFormat(String type, String text = "", Map params = null) { // Modified from @Stephack Code / @BPTWorld
+	if (type == "bold-red") return "<div style='color:firebrick; font-weight:bold'>${text}</div>"
+	if (type == "font") {
+		String font = (String)params?.font ?: "sans-serif"
+		return "<span style='font-family:${font}'>${text}</span>"
+	}
+	if (type == "highlight") {
+		String color = (String)params?.color ?: COLOR_TEXT
+		return "<div style='color:#ffffff;background-color:${color}'>${text}</div>"
+	}
+	if (type == "line") return "<div style='width:100%; height:1px; border-bottom:1px solid $COLOR_BLUE;'></div>"
+	if (type == "line2") return "<hr style='background-color:$COLOR_BLUE; height: 1px; border: 0;'></hr>"
 	if (type == "line-grey") return "<div style='width:100%;height:2px;border-top:1px solid grey'></div>"
 	if (type == "underline") return "<span style='text-decoration: underline'>${text}</span>"
-	if (type == "description") return "<span style='color:#1A77C9'>${text}</span>"
+	if (type == "description") return "<span style='color:$COLOR_BLUE'>${text}</span>"
 	return text
 }
 
@@ -362,7 +461,7 @@ String titleApp() {
 def sectionFooter() {
 	String bullet = bullet(1)
 	String name = hrefLinkExternal(LINK_GITHUB, APP_NAME)
-	String footer = "<div style='color:#1A77C9;text-align:center'>$name  $bullet v${APP_VERSION}  $bullet jdc72</div>"
+	String footer = "<div style='color:$COLOR_BLUE;text-align:center'>$name  $bullet v${APP_VERSION}  $bullet jdc72</div>"
 	paragraph lpx(20)
 	paragraph getFormat("line")
 	paragraph footer
@@ -374,21 +473,21 @@ def sectionFooter() {
 //-------------------------------------------------------------------------
 
 @CompileStatic
-static String inputButtonLink(String buttonName, String linkText, String titleText, String classes, String style) {
-	String cssClasses = (classes ?: "")
-	String cssStyle = (style ?: "")
-	String cssTitle = (titleText == null) ? "" : "title='$titleText'"
+static String inputButtonLink(String buttonName, String linkText, Map params = null) {
+	String style = ""
+	if ((String)params?.color != null) style += "color:${params.color};"
+	if ((String)params?.fontSz != null) style += "font-size:${params.fontSz};"
+	String classes = ((String)params?.classes ?: "")
+	String title = ((String)params?.titleText == null) ? "" : "title='${params?.titleText}'"
 	return "<span class='form-group'><input type='hidden' name='${buttonName}.type' value='button'></span>" +
-		"<span><span class='submitOnChange $cssClasses' onclick='buttonClick(this)' style='cursor:pointer;${cssStyle}' $cssTitle>$linkText</span></span><input type='hidden' name='settings[$buttonName]' value=''>"
+		"<span><span class='submitOnChange $classes' onclick='buttonClick(this)' style='cursor:pointer;${style}' $title>$linkText</span></span><input type='hidden' name='settings[$buttonName]' value=''>"
 }
 @CompileStatic
-static String inputButtonLink(String buttonName, String linkText, String titleText, String color = "#1A77C9", Integer szFont = 15) {
-	String style = "color:$color;font-size:${szFont}px;"
-	return inputButtonLink(buttonName, linkText, titleText, null, style)
-}
-@CompileStatic
-static String inputButtonCheckbox(String buttonName, boolean isChecked, String color = "#1A77C9", Integer szFont = 15) {
-	return inputButtonLink(buttonName, getIcon(isChecked ? ICON_CHECKED : ICON_UNCHECKED), null, color, szFont)
+static String inputButtonCheckbox(String buttonName, boolean isChecked, Map params = null) {
+	Map parameters = params ?: [:]
+	parameters.color = (String)parameters?.color ?: COLOR_BLUE
+	parameters.fontSz = (String)parameters?.fontSz ?: "15"
+	return inputButtonLink(buttonName, getIcon(isChecked ? ICON_CHECKED : ICON_UNCHECKED), parameters)
 }
 
 
@@ -397,7 +496,7 @@ def inputButton(String name, String title, Map params = null) {
 		name: name,
 		title: title,
 		type: "button",
-		textColor: params?.textColor ?: "black",
+		textColor: params?.textColor ?: COLOR_TEXT,
 		width: params?.width ?: 12,
 		newLineAfter: params?.EOL ?: false
 	)
@@ -405,30 +504,50 @@ def inputButton(String name, String title, Map params = null) {
 
 
 def appButtonHandler(String buttonName) {
-	Map<String,Map<String,String>> linkedDevices = (Map<String,Map<String,String>>)state.linkedDevices
-	if (buttonName == "btnApplyLabels") {
-		List<String> deviceIds = (List<String>)state.deviceIdsIncluded
-		logT "appButtonHandler: $buttonName for device IDs = $deviceIds"
-		DeviceWrapperList devices = getSettingsDeviceWrapperList("devices_all")
-		deviceIds?.each { String deviceId ->
-			String labelNew = linkedDevices?."$deviceId"?.labelNew
-			if (labelNew == null) return
-			devices.find { it.id == deviceId }?.setLabel(labelNew)
-		}
-	} else if (buttonName.startsWith("btnInclude|")) {
-		List<String> btnTerms = buttonName.split("\\|")
-		String action = btnTerms[2]
-		List<String> deviceIds = (btnTerms[1] != "ALL") ? [btnTerms[1]] :
-			(action == "exclude") ? (List<String>)state.deviceIdsIncluded : (List<String>)state.deviceIdsExcluded
-		logT "appButtonHandler: $buttonName for device IDs = $deviceIds"
-		deviceIds?.each { String deviceId ->
-			if (linkedDevices[deviceId] == null) return
-			if (action == "exclude")
-				linkedDevices[deviceId]["include"] = "N"
-			else if (action == "include")
-				linkedDevices[deviceId]["include"] = "Y"
-		}
-		state.linkedDevices = linkedDevices
+	Map<String,Map<String,String>> linkedDevices = (Map<String,Map<String,String>>)state.linkedDevices ?: [:]
+	List<String> btnName = buttonName.split("\\|")
+	switch (btnName[0]) {
+		case "btnInclude":
+			String action = btnName[2]
+			List<String> deviceIds = (btnName[1] != "ALL") ? [btnName[1]] :
+				(action == "exclude") ? (List<String>)state.deviceIdsIncluded : (List<String>)state.deviceIdsExcluded
+			logT "appButtonHandler: $buttonName for device IDs = $deviceIds"
+			deviceIds?.each { String deviceId ->
+				if (linkedDevices[deviceId] == null) return
+				if (action == "exclude")
+					linkedDevices[deviceId]["include"] = "N"
+				else if (action == "include")
+					linkedDevices[deviceId]["include"] = "Y"
+			}
+			state.linkedDevices = linkedDevices
+			break
+		case "btnApply":
+			List<String> deviceIds = (List<String>)state.deviceIdsIncluded
+			logT "appButtonHandler: $buttonName for device IDs = $deviceIds"
+			DeviceWrapperList devices = getSettingsDeviceWrapperList("devices_all")
+			deviceIds?.each { String deviceId ->
+				String labelNew = linkedDevices?."$deviceId"?.labelNew
+				if (labelNew == null) return
+				devices.find { it.id == deviceId }?.setLabel(labelNew)
+			}
+			break
+		case "btnEdit":
+			logT "appButtonHandler: $buttonName"
+			state.deviceIdEdit = btnName[1]
+			break
+		case "btnUpdate":
+			String deviceId = (String)state.deviceIdEdit
+			linkedDevices[deviceId].include = "Y"
+			linkedDevices[deviceId].labelManual = "Y"
+			linkedDevices[deviceId].labelNew = (String)settings.labelEdit
+			if (state.labelsManual == null) state.labelsManual = [:]
+			((Map<String,String>)state.labelsManual)[deviceId] = (String)settings.labelEdit
+			// fall through into btnReturn
+		case "btnReturn":
+			logT "appButtonHandler: $buttonName"
+			state.remove("deviceIdEdit")
+			app.removeSetting("labelEdit")
+			break
 	}
 	state.remove("deviceIdsExcluded")
 	state.remove("deviceIdsIncluded")
@@ -535,9 +654,14 @@ void uninstalled() {
 void initialize() {
 	app.updateLabel(getAppLabel())
 	state.remove("clonedName")
+	state.remove("deviceIdEdit")
 	state.remove("deviceIdsExcluded")
 	state.remove("deviceIdsIncluded")
 	state.remove("linkedDevices")
+	state.remove("labelsManual")
+	app.removeSetting("labelEdit")
+	if ((Boolean)settings.initializeDeselectDevices ?: false)
+		app.removeSetting("devices_all")
 	refresh()
 }
 
@@ -579,7 +703,10 @@ void logW(String msg) {
 //=========================================================================
 
 @Field public static final String CAPABILITY_ALL = "*"
-@Field public static final String COLOR_IGNORED = "#b0babb"
+@Field public static final String COLOR_BLUE = "#1A77C9"
+@Field public static final String COLOR_IGNORED = "#B0BABB"
+@Field public static final String COLOR_TEXT = "#49535C"
 @Field public static final String ICON_CHECKED = "he-checkbox-checked"
 @Field public static final String ICON_LINK_EXT = "pi pi-external-link"
+@Field public static final String ICON_PENCIL = "pi pi-pencil"
 @Field public static final String ICON_UNCHECKED = "he-checkbox-unchecked"
