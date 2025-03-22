@@ -1,10 +1,10 @@
 {
   "packageName": "Linked Device Labeler",
   "author": "Jeffrey D. Chapman",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "minimumHEVersion": "2.4.0.151",
   "dateReleased": "2025-03-22",
-  "releaseNotes": "version 1.1.0  @  2025-03-22  -  jdc72  -  Manual edits of device labels; optional device de-selection at initialization",
+  "releaseNotes": "version 1.1.1  @  2025-03-22  -  jdc72  -  Additional help for manual edits of device labels",
   "documentationLink": "https://github.com/jdc72/Hubitat/blob/main/linked_device_labeler/README.md",
   "category": "Utility",
   "tags": [

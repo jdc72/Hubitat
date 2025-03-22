@@ -16,7 +16,8 @@
  *
  *  Change History
  *    version 1.0.0  @  2025-03-16  -  jdc72  -  Initial release
- *    version 1.1.0  @  2025-03-22  -  jdc72  -  Manual edits of device labels; optional device de-selection at initialization
+ *    version 1.1.0  @  2025-03-22  -  jdc72  -  Manual edits of device labels; optional device deselection at initialization
+ *    version 1.1.1  @  2025-03-22  -  jdc72  -  Additional help for manual edits of device labels
  *
  */
 
@@ -25,7 +26,7 @@ import groovy.transform.Field
 import com.hubitat.app.*
 
 @Field static final String APP_NAME = "Linked Device Labeler"
-@Field static final String APP_VERSION = "1.1.0"
+@Field static final String APP_VERSION = "1.1.1"
 @Field static final String LINK_COMM = "https://community.hubitat.com/t/release-linked-device-labeler/151494"
 @Field static final String LINK_GITHUB = "https://github.com/jdc72/Hubitat/tree/main/linked_device_labeler"
 
@@ -235,8 +236,9 @@ def sectionDeviceRow(Map<String,String> device) {
 	String deviceId = hrefLinkDevicePage(device["id"], device["id"], [small: true, color: color])
 	sectionDeviceColumn(deviceId, [color: color, align: "center", width: 1])
 	sectionDeviceColumn(device["labelNow"], [color: color])
+	String labelNewHover = fpx(14, "Click to manually edit the proposed Device Label", COLOR_TEXT)
 	String labelNewText = device["labelNew"] + "  " + getIcon(ICON_PENCIL, [small: true])
-	String labelNew = inputButtonLink("btnEdit|" + device["id"], labelNewText, [color:color])
+	String labelNew = getTooltip("2", inputButtonLink("btnEdit|" + device["id"], labelNewText, [color: color]), labelNewHover)
 	sectionDeviceColumn(labelNew, [color: color, bold: isSame ? null : "N"])
 	sectionDeviceColumn(device["name"], [color: color, width: 4])
 }
